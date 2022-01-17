@@ -1,0 +1,34 @@
+- GUI
+- Formel
+
+- Input:
+	- Masse
+	- C_w Wert
+	- Fläche
+	- Drehmoment Motor
+	- Übersetzung (1-Gang erstmal)
+	- Raddurchmesser
+
+	- Drehbeschleunigung Reifen
+	- Rollwiderstand
+	- Steigung -> meist 0°
+	- Reibbeiwert
+	- Reifen Haftbeiwert
+
+- OutPut:
+	- Distanz als Array
+	- Beschl. als Array
+	- Geschw. als Array
+
+	--> Plotten
+
+	- Zeiten, Distanze für:
+		- 0-100
+		- 0-200
+		- viertel Meile
+		- halbe Meile
+		- ganze Meile
+
+
+	- Fahrzeuge vergleichen
+
