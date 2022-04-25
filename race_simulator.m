@@ -94,15 +94,41 @@ while distanz < 402
 
 end
 
-figure;
-plot(zeitschritt_array, beschleunigungs_array);
-figure;
-plot(zeitschritt_array, geschwindigkeits_array);
-figure;
-plot(zeitschritt_array, positions_array)
-figure;
-plot(zeitschritt_array, drehzahl_array)
-
 null_auf_hundert = zeitschritt_array(find(geschwindigkeits_array>=100,1));
 null_auf_zweihundert = zeitschritt_array(find(geschwindigkeits_array>=200,1));
+
+
+
+figure;
+plot(zeitschritt_array, beschleunigungs_array, 'red');
+
+title('Beschleunigung')
+xlabel('s')
+ylabel('m/s^2')
+
+figure;
+plot(zeitschritt_array, geschwindigkeits_array, 'magenta');
+
+title('Geschwindigkeit')
+xlabel('s')
+ylabel('m/s')
+
+hold on
+
+xline(null_auf_hundert,'--r',{'0-100'},'LineWidth',1);
+
+figure;
+plot(zeitschritt_array, positions_array, 'green')
+
+title('Ort')
+xlabel('s')
+ylabel('m')
+
+figure;
+plot(zeitschritt_array, drehzahl_array, 'black')
+
+title('Drehzahl')
+xlabel('s')
+ylabel('n')
+
 
