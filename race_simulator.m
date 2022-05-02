@@ -11,12 +11,12 @@ prompt = {'Masse [kg]','c_w','Stirnfläche [m^2]','Drehmoment [Nm]','Leistung [k
 % Defaults
 
 % Tesla Model 3SR
-%  definput = {'1900','0.23', '2.22', '420', '239', '220',...
-%  '9','18000', '0.578', '7*10^-3', '0', '1.1'};
+ definput = {'1900','0.23', '2.22', '420', '239', '220',...
+ '9','18000', '0.578', '7*10^-3', '0', '1.1'};
 
 % VW Golf 7
-definput = {'1291','0.27', '2.19', '340', '110','216',...
-  '14.662, 7.897, 5.196,  3.946, 3.156, 2.620','6000', '0.578', '7*10^-3', '0', '1.1'};
+% definput = {'1291','0.27', '2.19', '340', '110','216',...
+%  '14.662, 7.897, 5.196,  3.946, 3.156, 2.620','6000', '0.578', '7*10^-3', '0', '1.1'};
 
 
 dlgtitle = 'Inputs';    % Iput Fenster Titel
@@ -43,6 +43,7 @@ luftdichte = 1.2041; %kg/m^3
 deltaT = 0.01;
 g = 9.81;
 f_gewicht = masse*g;
+reifenhaftbeiwert = 1.1;
 
 % mit while veränderte Werte
 distanz = 0;
@@ -75,7 +76,7 @@ while distanz < 401 % Abbruch nach einer Viertel Meile (401m)
     drehzahl = v/(pi*raddurchmesser)*uebersetzung; % Momentane Drehzahl berechnen
 
     % Schaltlogik
-    if drehzahl > max_drehzahl 
+    if drehzahl > max_drehzahl && length(gaenge)<momentaner_gang 
         momentaner_gang = momentaner_gang + 1;
         uebersetzung = gaenge(momentaner_gang);
     end
@@ -90,8 +91,8 @@ while distanz < 401 % Abbruch nach einer Viertel Meile (401m)
 
     drehmoment = min(drehmoment_faktor*drehmoment_max, leistung*1000/(2*pi*drehzahl));
     
-    % Wirkende Kräfte Berechnen (alale sind Positiv)
-    f_antrieb = min(2*drehmoment*uebersetzung/raddurchmesser, 0.9*f_gewicht);
+    % Wirkende Kräfte Berechnen (alle sind Positiv)
+    f_antrieb = min(2*drehmoment*uebersetzung/raddurchmesser, reifenhaftbeiwert*f_gewicht);
     f_luft = 0.5 * c_w * stirnflaeche * luftdichte * v^2;
     f_reib = 50;
     f_roll = rollwiderstand * f_gewicht;
@@ -113,46 +114,87 @@ while distanz < 401 % Abbruch nach einer Viertel Meile (401m)
     beschleunigungs_array(end+1) = a;
     geschwindigkeits_array(end+1) = v*3.6;
     positions_array(end+1) = distanz;
-    drehzahl_array(end+1) = drehzahl;
+    drehzahl_array(end+1) = drehzahl*60;
 
 end
-
-null_auf_hundert = zeitschritt_array(find(geschwindigkeits_array>=100,1));
-null_auf_zweihundert = zeitschritt_array(find(geschwindigkeits_array>=200,1));
-
-
-
-% Array Plotten
-figure;
-plot(zeitschritt_array, beschleunigungs_array, 'red');
-
-title('Beschleunigung')
-xlabel('s')
-ylabel('m/s^2')
-
-figure;
-plot(zeitschritt_array, geschwindigkeits_array, 'magenta');
-
-title('Geschwindigkeit')
-xlabel('s')
-ylabel('m/s')
-
-hold on
-
-xline(null_auf_hundert,'--r',{'0-100'},'LineWidth',1);
-
-figure;
-plot(zeitschritt_array, positions_array, 'green')
-
-title('Ort')
-xlabel('s')
-ylabel('m')
-
-figure;
-plot(zeitschritt_array, drehzahl_array, 'black')
 
 % Wichtige Zeiten festhalten
 null_auf_hundert = zeitschritt_array(find(geschwindigkeits_array>=100,1));
 null_auf_zweihundert = zeitschritt_array(find(geschwindigkeits_array>=200,1));
 
+% Array Plotten
+figure;
+subplot(2,2,1);
+plot(zeitschritt_array, beschleunigungs_array, 'red');
+
+title('Beschleunigung')
+xlabel('Zeit in s')
+ylabel('Beschleunigung in m/s^2')
+
+hold on
+
+% Abfrage, falls Wert vorhanden, wird Linie eingezeichnet
+if not(isempty(null_auf_hundert))
+    xline(null_auf_hundert,'--r',{'0-100 km/h', append(num2str(null_auf_hundert),' s')},'LineWidth',1);
+end
+
+if not(isempty(null_auf_zweihundert))
+    xline(null_auf_zweihundert,'--r',{'0-200 km/h', append(num2str(null_auf_zweihundert),' s')},'LineWidth',1);
+end
+
+subplot(2,2,2);
+plot(zeitschritt_array, geschwindigkeits_array, 'magenta');
+
+title('Geschwindigkeit')
+xlabel('Zeit in s')
+ylabel('Geschwindigkeit in km/h')
+
+hold on
+
+% Abfrage, falls Wert vorhanden, wird Linie eingezeichnet
+if not(isempty(null_auf_hundert))
+    xline(null_auf_hundert,'--r',{'0-100 km/h', append(num2str(null_auf_hundert),' s')},'LineWidth',1);
+end
+
+if not(isempty(null_auf_zweihundert))
+    xline(null_auf_zweihundert,'--r',{'0-200 km/h', append(num2str(null_auf_zweihundert),' s')},'LineWidth',1);
+end
+
+subplot(2,2,3);
+plot(zeitschritt_array, positions_array, 'green')
+
+title('Ort')
+xlabel('Zeit in s')
+ylabel('Distanz in m')
+
+hold on
+
+% Abfrage, falls Wert vorhanden, wird Linie eingezeichnet
+if not(isempty(null_auf_hundert))
+    xline(null_auf_hundert,'--r',{'0-100 km/h', append(num2str(null_auf_hundert),' s')},'LineWidth',1);
+end
+
+if not(isempty(null_auf_zweihundert))
+    xline(null_auf_zweihundert,'--r',{'0-200 km/h', append(num2str(null_auf_zweihundert),' s')},'LineWidth',1);
+end
+
+subplot(2,2,4);
+plot(zeitschritt_array, drehzahl_array, 'black')
+
+title('Drehzahl')
+xlabel('Zeit in s')
+ylabel('Drehzahl in 1/min')
+
+hold on
+
+% Abfrage, falls Wert vorhanden, wird Linie eingezeichnet
+if not(isempty(null_auf_hundert))
+    xline(null_auf_hundert,'--r',{'0-100 km/h', append(num2str(null_auf_hundert),' s')},'LineWidth',1);
+end
+
+if not(isempty(null_auf_zweihundert))
+    xline(null_auf_zweihundert,'--r',{'0-200 km/h', append(num2str(null_auf_zweihundert),' s')},'LineWidth',1);
+end
+
+fprintf('Viertelmeilezeit: %.3f s \n', zeit);
 
