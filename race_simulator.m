@@ -11,12 +11,12 @@ prompt = {'Masse [kg]','c_w','Stirnfläche [m^2]','Drehmoment [Nm]','Leistung [k
 % Defaults
 
 % Tesla Model 3SR
- definput = {'1900','0.23', '2.22', '420', '239', '220',...
- '9','18000', '0.578', '7*10^-3', '0', '1.1'};
+% definput = {'1900','0.23', '2.22', '420', '239', '220',...
+% '9','18000', '0.578', '7*10^-3', '0', '1.1'};
 
 % VW Golf 7
-% definput = {'1291','0.27', '2.19', '340', '110','216',...
-%  '14.662, 7.897, 5.196,  3.946, 3.156, 2.620','6000', '0.578', '7*10^-3', '0', '1.1'};
+ definput = {'1291','0.27', '2.19', '340', '110','216',...
+  '14.662, 7.897, 5.196,  3.946, 3.156, 2.620','6000', '0.578', '7*10^-3', '0', '1.1'};
 
 
 dlgtitle = 'Inputs';    % Iput Fenster Titel
@@ -76,7 +76,7 @@ while distanz < 401 % Abbruch nach einer Viertel Meile (401m)
     drehzahl = v/(pi*raddurchmesser)*uebersetzung; % Momentane Drehzahl berechnen
 
     % Schaltlogik
-    if drehzahl > max_drehzahl && length(gaenge)<momentaner_gang 
+    if drehzahl > max_drehzahl && length(gaenge)>momentaner_gang 
         momentaner_gang = momentaner_gang + 1;
         uebersetzung = gaenge(momentaner_gang);
     end
@@ -124,7 +124,7 @@ null_auf_zweihundert = zeitschritt_array(find(geschwindigkeits_array>=200,1));
 
 % Array Plotten
 figure;
-subplot(2,2,1);
+subplot(3,2,1);
 plot(zeitschritt_array, beschleunigungs_array, 'red');
 
 title('Beschleunigung')
@@ -142,7 +142,7 @@ if not(isempty(null_auf_zweihundert))
     xline(null_auf_zweihundert,'--r',{'0-200 km/h', append(num2str(null_auf_zweihundert),' s')},'LineWidth',1);
 end
 
-subplot(2,2,2);
+subplot(3,2,2);
 plot(zeitschritt_array, geschwindigkeits_array, 'magenta');
 
 title('Geschwindigkeit')
@@ -160,7 +160,7 @@ if not(isempty(null_auf_zweihundert))
     xline(null_auf_zweihundert,'--r',{'0-200 km/h', append(num2str(null_auf_zweihundert),' s')},'LineWidth',1);
 end
 
-subplot(2,2,3);
+subplot(3,2,3);
 plot(zeitschritt_array, positions_array, 'green')
 
 title('Ort')
@@ -178,7 +178,7 @@ if not(isempty(null_auf_zweihundert))
     xline(null_auf_zweihundert,'--r',{'0-200 km/h', append(num2str(null_auf_zweihundert),' s')},'LineWidth',1);
 end
 
-subplot(2,2,4);
+subplot(3,2,4);
 plot(zeitschritt_array, drehzahl_array, 'black')
 
 title('Drehzahl')
@@ -196,5 +196,9 @@ if not(isempty(null_auf_zweihundert))
     xline(null_auf_zweihundert,'--r',{'0-200 km/h', append(num2str(null_auf_zweihundert),' s')},'LineWidth',1);
 end
 
-fprintf('Viertelmeilezeit: %.3f s \n', zeit);
+% Schrift unter den Plots
+subplot(3,2,[5,6]);
+text(0.5,0.5, sprintf('Viertelmeilezeit: %.3f s \n', zeit));
+text(0.5,0.75, sprintf('Endgeschwindigkeit: %.3f km/h \n', v*3.6));
+axis off;
 
